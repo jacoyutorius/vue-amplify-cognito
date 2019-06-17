@@ -1,23 +1,6 @@
 import awsconfig from './aws-exports'
-// import { AmplifyEventBus } from 'aws-amplify-vue'
-
 
 const COGNITO_PROVIDER_PREFIX = 'CognitoIdentityServiceProvider';
-
-// AmplifyEventBus.$on('authState', info => {
-//   console.log("AmplifyEventBus", info)
-
-//   switch(info) {
-//     case 'signedIn':
-//       this.$router.push('/');
-//       break;
-//     case 'signedOut':
-//       this.$router.push('/');
-//       break;
-//     default:
-//       // do nothing
-//   }
-// })
 
 export default {
   loggedIn: () => {
