@@ -13,27 +13,6 @@ Parameters:
     Type: String
 
     
-  identityPoolName:
-    Type: String
-              
-  allowUnauthenticatedIdentities:
-    Type: String
-          
-  lambdaLogPolicy:
-    Type: String
-            
-  openIdLambdaRoleName:
-    Type: String
-            
-  openIdRolePolicy:
-    Type: String
-            
-  openIdLambdaIAMPolicy:
-    Type: String
-            
-  openIdLogPolicy:
-    Type: String
-            
   userPoolName:
     Type: String
                   
@@ -118,6 +97,21 @@ Parameters:
   userpoolClientSetAttributes:
     Type: String
           
+  lambdaLogPolicy:
+    Type: String
+            
+  openIdLambdaRoleName:
+    Type: String
+            
+  openIdRolePolicy:
+    Type: String
+            
+  openIdLambdaIAMPolicy:
+    Type: String
+            
+  openIdLogPolicy:
+    Type: String
+            
   resourceName:
     Type: String
             
@@ -129,7 +123,10 @@ Parameters:
                   
   usernameAttributes:
     Type: CommaDelimitedList
-    
+        
+  hostedUI:
+    Type: String
+        
 Conditions:
   ShouldNotCreateEnvResources: !Equals [ !Ref env, NONE ]
 
@@ -211,6 +208,9 @@ Resources:
     Properties:
       ClientName: amplifd2fe10fb_app_clientWeb
       
+      ReadAttributes: !Ref userpoolClientReadAttributes
+      WriteAttributes: !Ref userpoolClientWriteAttributes
+      
       RefreshTokenValidity: !Ref userpoolClientRefreshTokenValidity
       UserPoolId: !Ref UserPool
     DependsOn: UserPool
@@ -220,6 +220,9 @@ Resources:
     Type: "AWS::Cognito::UserPoolClient"
     Properties:
       ClientName: !Ref userpoolClientName
+      
+      ReadAttributes: !Ref userpoolClientReadAttributes
+      WriteAttributes: !Ref userpoolClientWriteAttributes
       
       GenerateSecret: !Ref userpoolClientGenerateSecret
       RefreshTokenValidity: !Ref userpoolClientRefreshTokenValidity
@@ -334,50 +337,8 @@ Resources:
 
   
     
-  # BEGIN IDENTITY POOL RESOURCES
-  
-  
-  IdentityPool:
-  # Always created
-    Type: AWS::Cognito::IdentityPool
-    Properties: 
-      IdentityPoolName: !If [ShouldNotCreateEnvResources, 'amplifyauthd2fe10fb_identitypool_d2fe10fb', !Join ['',['amplifyauthd2fe10fb_identitypool_d2fe10fb', '__', !Ref env]]]
-      
-      CognitoIdentityProviders:
-        - ClientId:  !Ref UserPoolClient
-          ProviderName: !Sub
-            - cognito-idp.${region}.amazonaws.com/${client}
-            - { region: !Ref "AWS::Region",  client: !Ref UserPool}
-        - ClientId:  !Ref UserPoolClientWeb
-          ProviderName: !Sub
-            - cognito-idp.${region}.amazonaws.com/${client}
-            - { region: !Ref "AWS::Region",  client: !Ref UserPool}
-            
-      AllowUnauthenticatedIdentities: !Ref allowUnauthenticatedIdentities
-       
-       
-    DependsOn: UserPoolClientInputs 
-    
-  
-  IdentityPoolRoleMap:
-  # Created to map Auth and Unauth roles to the identity pool
-  # Depends on Identity Pool for ID ref
-    Type: AWS::Cognito::IdentityPoolRoleAttachment
-    Properties: 
-      IdentityPoolId: !Ref IdentityPool
-      Roles:
-          unauthenticated: !Ref unauthRoleArn
-          authenticated: !Ref authRoleArn
-    DependsOn: IdentityPool
-  
 
 Outputs :
-  
-  IdentityPoolId:
-    Value: !Ref 'IdentityPool'
-    Description:  Id for the identity pool
-  IdentityPoolName:
-    Value: !GetAtt IdentityPool.Name 
   
   
   
